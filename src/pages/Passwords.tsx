@@ -42,7 +42,7 @@ export default function Passwords() {
         <h1 className={style.title}>Passwords</h1>
         <ul className={style.list}>
             {CredentialContainers.map(container => (
-                <li key={container.key} className={style.listItem}>
+                <li key={container.id} className={style.listItem}>
                     <p>Name: {container.name}</p>
                     <p>Password: {container.hash}</p>
                     <Link to={`/edit/${container.id}`} className={style.button}>Edit</Link>

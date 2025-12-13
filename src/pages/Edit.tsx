@@ -27,7 +27,7 @@ export default function Edit() {
 
         const fetchContainerById = async () => {
             try {
-                const response = await axios.get(baseUrl+'/users/${id}');
+                const response = await axios.get(`${baseUrl}/users/${id}`);
                 setCredentialContainer(response.data);
             } catch (err) {
                 setError('Error fetching data');
@@ -56,11 +56,11 @@ export default function Edit() {
         const { id, ...payload } = credentialContainer;
 
         if (addMode) {
-            axios.post(baseUrl+'/users/${credentialContainer.id}', payload)
+            axios.post(`${baseUrl}/users/${credentialContainer.id}`, payload)
             .then(() => navigate("/home"))
             .catch(err => console.error(err));
         } else {
-            axios.post(baseUrl+'/users', payload)
+            axios.post(`${baseUrl}/users`, payload)
             .then(() => navigate("/home"))
             .catch(err => console.error(err));
         }
@@ -69,7 +69,7 @@ export default function Edit() {
     const handleDelete = () => {
         if (!credentialContainer?.id) return;
         if (window.confirm("Are you sure you want to delete this password?")) {
-            axios.delete(baseUrl+'/users/${credentialContainer.id}')
+            axios.delete(`${baseUrl}/users/${credentialContainer.id}`)
             .then(() => navigate("/home"))
             .catch(err => console.error(err));
         }

@@ -14,6 +14,7 @@ export const routes: RouteObject[] = [
             {path: '/home', element: <Home />},
             {path: '/about', element: <About />},
             {path: '/edit', element: <Edit />},
+            {path: '/edit/:id', element: <Edit />},
             {path: '/passwords', element: <Passwords />},
             {path: '/not-found', element: <NotFound />},
             {path: '/', element: <Navigate replace to='home' />},
