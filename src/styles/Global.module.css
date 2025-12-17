@@ -1,0 +1,84 @@
+.container {
+  background-color: #2f2f2f;
+  color: white;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.title {
+  justify-content: center;
+  align-items: center;
+}
+
+.saveButton {
+  margin-top: 20px;
+  background-color: #6c7a6c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.saveButton:hover {
+  background-color: #556655;
+  transform: translateY(-1px);
+}
+
+.deleteButton {
+  margin-top: 20px;
+  background-color: #f90808;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 20px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.deleteButton:hover {
+  background-color: #8f0d0d;
+  transform: translateY(-1px);
+}
+
+.deleteButton:disabled {
+  margin-top: 20px;
+  background-color: #f90808;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: bold;
+  cursor: not-allowed;
+  margin-left: 20px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.deleteButton:disabled:hover {
+  background-color: #8f0d0d;
+  transform: none;
+}
+
+.text {
+  font-size: 18px;
+  justify-content: center;
+  align-items: center;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.listItem {
+  background-color: #3a3a3a;
+  padding: 15px 20px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
