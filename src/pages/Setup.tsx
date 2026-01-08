@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { hashPassword } from "../utils/auth";
-import styles from "../styles/Global.module.css";
+import global from "../styles/Global.module.css"
 
 export default function Setup() {
   const [password, setPassword] = useState("");
@@ -24,20 +24,21 @@ export default function Setup() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
-      <h2>Set master password</h2>
+    <div className={global.container}>
+      <form onSubmit={handleSubmit} className={global.form}>
+        <h2 className={global.title}>Set master password</h2>
 
-      <input
-        type="password"
-        placeholder="Master password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <button type="submit">Save</button>
-    </form>
+        <input
+          className={global.input}
+          type="password"
+          placeholder="Master password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit" className={global.saveButton}>Save</button>
+        {error && <p className={global.errorMessage}>{error}</p>}
+      </form>
+    </div>
   );
 }

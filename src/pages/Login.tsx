@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { hashPassword } from "../utils/auth";
-import styles from "../styles/Global.module.css";
+import global from "../styles/Global.module.css";
 
 export default function Login() {
   const [password, setPassword] = useState("");
@@ -39,11 +39,12 @@ export default function Login() {
   }
 
   return (
-    <div className={styles.container}>
-      <h2 className={styles.title}>Unlock vault</h2>
+    <div className={global.container}>
+      <h2 className={global.title}>Unlock vault</h2>
 
       <form onSubmit={handleSubmit}>
         <input
+          className={global.input}
           type="password"
           placeholder="Master password"
           value={password}
@@ -51,19 +52,19 @@ export default function Login() {
           required
         />
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
-
-        <button type="submit" className={styles.saveButton}>
+        <button type="submit" className={global.saveButton}>
           Unlock
         </button>
 
         <button
           type="button"
-          className={styles.deleteButton}
+          className={global.deleteButton}
           onClick={handleReset}
         >
           Reset master password
         </button>
+
+        {error && <p className={global.errorMessage}>{error}</p>}
       </form>
     </div>
   );
