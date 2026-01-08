@@ -1,109 +1,84 @@
-import axios from 'axios';
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { CredentialContainer } from "../models/CredentialContainer";
-import { baseUrl } from '../models/BaseUrl';
-import { Link } from 'react-router-dom';
-import style from '../styles/Global.module.css';
-
+import { deleteContainer, getContainers } from "../api/credentialContainersApi";
+import styles from "../styles/Passwords.module.css";
 
 export default function Passwords() {
-    const [CredentialContainers, setCredentialContainers] = useState<CredentialContainer[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+  const [items, setItems] = useState<CredentialContainer[]>([]);
+  const [shownId, setShownId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        setLoading(true);
-axios.get<CredentialContainer[]>(baseUrl + "/CredentialContainers")
+  async function load() {
+    const data = await getContainers();
+    setItems(data);
+  }
 
-        .then((response) => {
-            setCredentialContainers(response.data);
-        })
-        .catch((err) => {
-  console.log(err);
-  setError('Error fetching data');
-        })
-        .finally(() => {
-            setLoading(false);
-        });
-    }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
-    if (loading) return (
-  <div className={style.container}>
-    <p className={style.title}>Loading...</p>
-  </div>
-  );
-  if (error) return (
-  <div className={style.container}>
-    <p className={style.title}>{error}</p>
-  </div>
-  );
+  async function handleDelete(id: string) {
+    await deleteContainer(id);
+    if (shownId === id) setShownId(null);
+    load();
+  }
 
   return (
-    <div className={style.container}>
-        <h1 className={style.title}>Passwords</h1>
-        <ul className={style.list}>
-            {CredentialContainers.map(container => (
-                <li key={container.id} className={style.listItem}>
-                    <p>Name: {container.name}</p>
-                    <p>Password: {container.hash}</p>
-                    <Link to={`/edit/${container.id}`} className={style.button}>Edit</Link>
-                </li>
-            ))}
-        </ul>
-    </div>
-  );
-}
-import axios from 'axios';
-import { useEffect, useState } from "react";
-import { CredentialContainer } from "../models/CredentialContainer";
-import { baseUrl } from '../models/BaseUrl';
-import { Link } from 'react-router-dom';
-import style from '../styles/Global.module.css';
+    <div className={styles.container}>
+      <h2>Passwords</h2>
 
+      <button
+        className={styles.addButton}
+        onClick={() => navigate("/passwords/new")}
+      >
+        + Add
+      </button>
 
-export default function Passwords() {
-    const [CredentialContainers, setCredentialContainers] = useState<CredentialContainer[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
-    const [error, setError] = useState<string | null>(null);
+      <div className={styles.list}>
+        {items.map((item) => {
+          const data = JSON.parse(item.containerString);
 
-    useEffect(() => {
-        setLoading(true);
+          return (
+            <div key={item.id} className={styles.listItem}>
+              <div className={styles.itemLeft}>
+                <strong className={styles.serviceName}>{data.serviceName}</strong>
+                <span className={styles.userName}>{data.userName}</span>
+              </div>
 
-        axios.get<CredentialContainer[]>(baseUrl+"/users")
-        .then((response) => {
-            setCredentialContainers(response.data);
-        })
-        .catch(() => {
-            setError('Error fetching data');
-        })
-        .finally(() => {
-            setLoading(false);
-        });
-    }, []);
+              <div className={styles.itemRight}>
+                <span className={styles.password}>
+                  {shownId === item.id ? data.password : "••••••••"}
+                </span>
 
-    if (loading) return (
-  <div className={style.container}>
-    <p className={style.title}>Loading...</p>
-  </div>
-  );
-  if (error) return (
-  <div className={style.container}>
-    <p className={style.title}>{error}</p>
-  </div>
-  );
+                <button
+                  type="button"
+                  className={styles.actionButton}
+                  onClick={() => setShownId(shownId === item.id ? null : item.id)}
+                >
+                  {shownId === item.id ? "Hide" : "Show"}
+                </button>
 
-  return (
-    <div className={style.container}>
-        <h1 className={style.title}>Passwords</h1>
-        <ul className={style.list}>
-            {CredentialContainers.map(container => (
-                <li key={container.id} className={style.listItem}>
-                    <p>Name: {container.name}</p>
-                    <p>Password: {container.hash}</p>
-                    <Link to={`/edit/${container.id}`} className={style.button}>Edit</Link>
-                </li>
-            ))}
-        </ul>
+                <button
+                  type="button"
+                  className={styles.actionButton}
+                  onClick={() => navigate(`/passwords/${item.id}/edit`)}
+                >
+                  Edit
+                </button>
+
+                <button
+                  type="button"
+                  className={`${styles.actionButton} ${styles.deleteButton}`}
+                  onClick={() => handleDelete(item.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

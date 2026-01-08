@@ -1,26 +1,100 @@
-import { createBrowserRouter, Navigate, RouteObject } from "react-router-dom";
+import React from "react";
+import { createBrowserRouter, Navigate } from "react-router-dom";
+
 import Home from "../pages/Home";
-import App from "../App";
-import NotFound from "../pages/NotFound";
 import About from "../pages/About";
-import Edit from "../pages/Edit";
 import Passwords from "../pages/Passwords";
+import Edit from "../pages/Edit";
+import Login from "../pages/Login";
+import Setup from "../pages/Setup";
 
-export const routes: RouteObject[] = [
-    {
-        path: "/",
-        element: <App />,
-        children: [
-            {path: '/home', element: <Home />},
-            {path: '/about', element: <About />},
-            {path: '/edit', element: <Edit />},
-            {path: '/edit/:id', element: <Edit />},
-            {path: '/passwords', element: <Passwords />},
-            {path: '/not-found', element: <NotFound />},
-            {path: '/', element: <Navigate replace to='home' />},
-            {path: '*', element: <Navigate replace to='/not-found' />}
-        ]
-    }
-]
+import ProtectedRoute from "../components/ProtectedRoute";
+import AppLayout from "../components/AppLayout";
 
-export const router = createBrowserRouter(routes);
+function hasMasterPassword(): boolean {
+  return !!localStorage.getItem("masterPasswordHash");
+}
+
+function RootRedirect() {
+  return <Navigate to={hasMasterPassword() ? "/login" : "/setup"} replace />;
+}
+
+function SetupGate() {
+  return hasMasterPassword() ? (
+    <Navigate to="/login" replace />
+  ) : (
+    <AppLayout>
+      <Setup />
+    </AppLayout>
+  );
+}
+
+function LoginGate() {
+  return hasMasterPassword() ? (
+    <AppLayout>
+      <Login />
+    </AppLayout>
+  ) : (
+    <Navigate to="/setup" replace />
+  );
+}
+
+export const router = createBrowserRouter([
+  { path: "/", element: <RootRedirect /> },
+
+  // public
+  {
+    path: "/home",
+    element: (
+      <AppLayout>
+        <Home />
+      </AppLayout>
+    ),
+  },
+  {
+    path: "/about",
+    element: (
+      <AppLayout>
+        <About />
+      </AppLayout>
+    ),
+  },
+
+  // setup/login
+  { path: "/setup", element: <SetupGate /> },
+  { path: "/login", element: <LoginGate /> },
+
+  // protected
+  {
+    path: "/passwords",
+    element: (
+      <ProtectedRoute>
+        <AppLayout>
+          <Passwords />
+        </AppLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/passwords/new",
+    element: (
+      <ProtectedRoute>
+        <AppLayout>
+          <Edit />
+        </AppLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: "/passwords/:id/edit",
+    element: (
+      <ProtectedRoute>
+        <AppLayout>
+          <Edit />
+        </AppLayout>
+      </ProtectedRoute>
+    ),
+  },
+
+  { path: "*", element: <RootRedirect /> },
+]);
