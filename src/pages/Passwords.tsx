@@ -1,8 +1,25 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { CredentialContainer } from "../models/CredentialContainer";
-import { deleteContainer, getContainers } from "../api/credentialContainersApi";
+import { api } from "../api/apiClient";
 import styles from "../styles/Passwords.module.css";
+
+type ParsedContainer = {
+  serviceName?: string;
+  userName?: string;
+  password?: string;
+  note?: string;
+};
+
+function tryParseContainerString(containerString: string): ParsedContainer | null {
+  try {
+    const parsed = JSON.parse(containerString);
+    if (parsed && typeof parsed === "object") return parsed;
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 export default function Passwords() {
   const [items, setItems] = useState<CredentialContainer[]>([]);
@@ -10,8 +27,8 @@ export default function Passwords() {
   const navigate = useNavigate();
 
   async function load() {
-    const data = await getContainers();
-    setItems(data);
+    const res = await api.get("/sync/containers");
+    setItems(res.data);
   }
 
   useEffect(() => {
@@ -19,7 +36,7 @@ export default function Passwords() {
   }, []);
 
   async function handleDelete(id: string) {
-    await deleteContainer(id);
+    await api.delete(`/CredentialContainers/${id}`);
     if (shownId === id) setShownId(null);
     load();
   }
@@ -37,18 +54,22 @@ export default function Passwords() {
 
       <div className={styles.list}>
         {items.map((item) => {
-          const data = JSON.parse(item.containerString);
+          const parsed = tryParseContainerString(item.containerString);
+
+          const serviceName = parsed?.serviceName ?? "Encrypted entry";
+          const userName = parsed?.userName ?? item.containerHash;
+          const passwordValue = parsed?.password ?? item.containerString;
 
           return (
             <div key={item.id} className={styles.listItem}>
               <div className={styles.itemLeft}>
-                <strong className={styles.serviceName}>{data.serviceName}</strong>
-                <span className={styles.userName}>{data.userName}</span>
+                <strong className={styles.serviceName}>{serviceName}</strong>
+                <span className={styles.userName}>{userName}</span>
               </div>
 
               <div className={styles.itemRight}>
                 <span className={styles.password}>
-                  {shownId === item.id ? data.password : "••••••••"}
+                  {shownId === item.id ? passwordValue : "••••••••"}
                 </span>
 
                 <button

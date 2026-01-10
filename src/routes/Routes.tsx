@@ -1,4 +1,3 @@
-import React from "react";
 import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import Home from "../pages/Home";
@@ -42,7 +41,6 @@ function LoginGate() {
 export const router = createBrowserRouter([
   { path: "/", element: <RootRedirect /> },
 
-  // public
   {
     path: "/home",
     element: (
@@ -60,11 +58,9 @@ export const router = createBrowserRouter([
     ),
   },
 
-  // setup/login
   { path: "/setup", element: <SetupGate /> },
   { path: "/login", element: <LoginGate /> },
 
-  // protected
   {
     path: "/passwords",
     element: (
