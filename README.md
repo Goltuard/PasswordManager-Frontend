@@ -2,10 +2,6 @@
 
 ## Electron App Start
 
-Before you start the application run:
-
-### `npm run build`
-
 To start an electron app, you can run:
 
 ### `npm run electron`

@@ -4,7 +4,6 @@
   "private": true,
   "main": "src/electron/main.ts",
   "type": "module",
-  "homepage": ".",
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",

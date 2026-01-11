@@ -8,8 +8,7 @@ import {
   getContainer,
   updateContainer,
 } from "../api/credentialContainersApi";
-import global from "../styles/Global.module.css"
-import local from "../styles/Edit.module.css";
+import styles from "../styles/Edit.module.css";
 
 const emptyForm: CredentialPayload = {
   serviceName: "",
@@ -75,15 +74,15 @@ export default function Edit() {
     navigate("/passwords", { replace: true });
   }
 
-  if (loading) return <p className={global.container}>Loading...</p>;
+  if (loading) return <p className={styles.container}>Loading...</p>;
 
   return (
-    <div className={global.container}>
+    <div className={styles.container}>
       <h2>{isEdit ? "Edit password" : "Add password"}</h2>
 
       <form onSubmit={handleSubmit}>
         <input
-          className={global.input}
+          className={styles.input}
           name="serviceName"
           placeholder="Service"
           value={form.serviceName}
@@ -92,7 +91,7 @@ export default function Edit() {
         />
 
         <input
-          className={global.input}
+          className={styles.input}
           name="userName"
           placeholder="Username"
           value={form.userName}
@@ -101,9 +100,9 @@ export default function Edit() {
         />
 
         {/* Password + Show/Hide */}
-        <div className={local.passwordRow}>
+        <div className={styles.passwordRow}>
           <input
-            className={global.input}
+            className={styles.input}
             name="password"
             type={showPassword ? "text" : "password"}
             placeholder="Password"
@@ -114,7 +113,7 @@ export default function Edit() {
 
           <button
             type="button"
-            className={global.button}
+            className={styles.button}
             onClick={() => setShowPassword((v) => !v)}
           >
             {showPassword ? "Hide" : "Show"}
@@ -122,7 +121,7 @@ export default function Edit() {
         </div>
 
         <textarea
-          className={local.textarea}
+          className={styles.textarea}
           name="note"
           placeholder="Note"
           value={form.note}
@@ -132,7 +131,7 @@ export default function Edit() {
         <button
           disabled={saving}
           type="submit"
-          className={`${global.button} ${local.saveButton}`}
+          className={`${styles.button} ${styles.saveButton}`}
         >
           {saving ? "Saving..." : "Save"}
         </button>
