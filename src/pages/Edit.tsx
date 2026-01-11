@@ -1,141 +1,129 @@
-import React, { useEffect, useState } from "react";
+import axios from 'axios';
+import { baseUrl } from '../models/BaseUrl';
 import { useNavigate, useParams } from "react-router-dom";
-import { CredentialPayload } from "../models/CredentialPayload";
-import { buildContainerString } from "../utils/container";
-import { sha256Hex } from "../utils/hash";
-import {
-  createContainer,
-  getContainer,
-  updateContainer,
-} from "../api/credentialContainersApi";
-import styles from "../styles/Edit.module.css";
-
-const emptyForm: CredentialPayload = {
-  serviceName: "",
-  userName: "",
-  password: "",
-  note: "",
-};
+import React, { useEffect, useState } from "react";
+import { CredentialContainer } from "../models/CredentialContainer";
+import style from "../styles/Global.module.css";
+import { generatePassword } from "../utils/passwordGenerator";
 
 export default function Edit() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const isEdit = Boolean(id);
+    const navigate = useNavigate();
+    const { id } = useParams<{ id: string}>();
+    const [credentialContainer, setCredentialContainer] = useState<CredentialContainer | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    let addMode = !id;
 
-  const [form, setForm] = useState<CredentialPayload>(emptyForm);
-  const [loading, setLoading] = useState(isEdit);
-  const [saving, setSaving] = useState(false);
+    useEffect(() => {
+        if (addMode) {
+            setCredentialContainer({
+                id: null,
+                name: "",
+                hash: "",
+                key: ""
+            });
+        setLoading(false);
+        return;
+        }
 
-  const [showPassword, setShowPassword] = useState(false);
+        const fetchContainerById = async () => {
+            try {
+               const response = await axios.get(`${baseUrl}/CredentialContainers/${id}`);
+        setCredentialContainer(response.data ?? null);
 
-  useEffect(() => {
-    if (!isEdit || !id) return;
+            } catch (err) {
+                setError('Error fetching data');
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    (async () => {
-      const container = await getContainer(id);
-      const parsed = JSON.parse(container.containerString);
+        fetchContainerById();
+    }, [id]);
 
-      setForm({
-        serviceName: parsed.serviceName ?? "",
-        userName: parsed.userName ?? "",
-        password: parsed.password ?? "",
-        note: parsed.note ?? "",
-      });
-
-      setLoading(false);
-    })();
-  }, [id, isEdit]);
-
-  function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setSaving(true);
-
-    const containerString = buildContainerString(form);
-    const containerHash = await sha256Hex(containerString);
-
-    const payload = {
-      userId: "00000000-0000-0000-0000-000000000001",
-      containerString,
-      containerHash,
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        if (credentialContainer) {
+            const { name, value } = e.target;
+            setCredentialContainer({
+                ...credentialContainer,
+                [name]: value,
+            });
+        }
     };
 
-    if (isEdit && id) {
-      await updateContainer(id, payload);
-    } else {
-      await createContainer(payload);
-    }
+     const handleGeneratePassword = () => {
+    if (!credentialContainer) return;
 
-    navigate("/passwords", { replace: true });
-  }
+    setCredentialContainer({
+        ...credentialContainer,
+        hash: generatePassword(16),
+    });
+};
 
-  if (loading) return <p className={styles.container}>Loading...</p>;
 
-  return (
-    <div className={styles.container}>
-      <h2>{isEdit ? "Edit password" : "Add password"}</h2>
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!credentialContainer) return;
 
-      <form onSubmit={handleSubmit}>
-        <input
-          className={styles.input}
-          name="serviceName"
-          placeholder="Service"
-          value={form.serviceName}
-          onChange={handleChange}
-          required
-        />
+        const { id, ...payload } = credentialContainer;
 
-        <input
-          className={styles.input}
-          name="userName"
-          placeholder="Username"
-          value={form.userName}
-          onChange={handleChange}
-          required
-        />
+        if (addMode) {
+            axios.post(`${baseUrl}/users/${credentialContainer.id}`, payload)
+            .then(() => navigate("/home"))
+            .catch(err => console.error(err));
+        } else {
+            axios.post(`${baseUrl}/users`, payload)
+            .then(() => navigate("/home"))
+            .catch(err => console.error(err));
+        }
+    };
 
-        {/* Password + Show/Hide */}
-        <div className={styles.passwordRow}>
+    const handleDelete = () => {
+        if (!credentialContainer?.id) return;
+        if (window.confirm("Are you sure you want to delete this password?")) {
+            axios.delete(`${baseUrl}/users/${credentialContainer.id}`)
+            .then(() => navigate("/home"))
+            .catch(err => console.error(err));
+        }
+    };
+
+    if (loading) return (
+    <div className={style.container}>
+        <p className={style.title}>Loading...</p>
+    </div>
+    );
+    if (error) return (
+    <div className={style.container}>
+        <p className={style.title}>{error}</p>
+    </div>
+    );
+
+    return (
+    <div className={style.container}>
+      <form onSubmit={handleSubmit} className={style.formContainer}>
+        <div className={style.formGroup}>
+          <label>Name:</label>
           <input
-            className={styles.input}
-            name="password"
-            type={showPassword ? "text" : "password"}
-            placeholder="Password"
-            value={form.password}
+            type="text"
+            name="name"
+            value={credentialContainer ? credentialContainer.name : ""}
             onChange={handleChange}
-            required
           />
-
-          <button
-            type="button"
-            className={styles.button}
-            onClick={() => setShowPassword((v) => !v)}
-          >
-            {showPassword ? "Hide" : "Show"}
-          </button>
         </div>
 
-        <textarea
-          className={styles.textarea}
-          name="note"
-          placeholder="Note"
-          value={form.note}
-          onChange={handleChange}
-        />
-
-        <button
-          disabled={saving}
-          type="submit"
-          className={`${styles.button} ${styles.saveButton}`}
-        >
-          {saving ? "Saving..." : "Save"}
-        </button>
+        <div className={style.formGroup}>
+          <label>Password:</label>
+          <input
+            type="text"
+            name="hash"
+            value={credentialContainer ? credentialContainer.hash : ""}
+            onChange={handleChange}
+          />
+        </div>
+        <button type="submit" className={style.saveButton}>Save</button>
+       <button type="button" className={style.saveButton} onClick={handleGeneratePassword}>Generate</button>
+       <button type="button" disabled={addMode} className={style.deleteButton} onClick={handleDelete}>Delete</button>
       </form>
     </div>
-  );
+    );
 }

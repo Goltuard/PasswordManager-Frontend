@@ -2,12 +2,12 @@
   display: flex;
   align-items: center;
   padding: 10px 20px;
-  background-color: #e0e0e0; 
-  border-bottom: 2px solid #b0b0b0; 
+  background-color: #e0e0e0; /* szare tło */
+  border-bottom: 2px solid #b0b0b0; /* kreska oddzielająca */
 }
 
 .navButton {
-  background-color: #f5f5f5; 
+  background-color: #f5f5f5; /* jaśniejszy przycisk */
   color: #333;
   padding: 8px 16px;
   border-radius: 6px;
