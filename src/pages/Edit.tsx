@@ -3,8 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { CredentialPayload } from "../models/CredentialPayload";
 import { buildContainerString } from "../utils/container";
 import { sha256Hex } from "../utils/hash";
-import { api } from "../api/apiClient";
-import global from "../styles/Global.module.css";
+import {
+  createContainer,
+  getContainer,
+  updateContainer,
+} from "../api/credentialContainersApi";
+import global from "../styles/Global.module.css"
 import local from "../styles/Edit.module.css";
 
 const emptyForm: CredentialPayload = {
@@ -22,20 +26,21 @@ export default function Edit() {
   const [form, setForm] = useState<CredentialPayload>(emptyForm);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
+
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (!isEdit || !id) return;
 
     (async () => {
-      const res = await api.get(`/CredentialContainers/${id}`);
-      const container = res.data;
+      const container = await getContainer(id);
+      const parsed = JSON.parse(container.containerString);
 
       setForm({
-        serviceName: "",
-        userName: "",
-        password: "",
-        note: "",
+        serviceName: parsed.serviceName ?? "",
+        userName: parsed.userName ?? "",
+        password: parsed.password ?? "",
+        note: parsed.note ?? "",
       });
 
       setLoading(false);
@@ -56,18 +61,18 @@ export default function Edit() {
     const containerHash = await sha256Hex(containerString);
 
     const payload = {
+      userId: "00000000-0000-0000-0000-000000000001",
       containerString,
       containerHash,
     };
 
     if (isEdit && id) {
-      await api.put(`/CredentialContainers/${id}`, payload);
+      await updateContainer(id, payload);
     } else {
-      await api.post(`/CredentialContainers`, payload);
+      await createContainer(payload);
     }
 
     navigate("/passwords", { replace: true });
-    setSaving(false);
   }
 
   if (loading) return <p className={global.container}>Loading...</p>;
@@ -95,6 +100,7 @@ export default function Edit() {
           required
         />
 
+        {/* Password + Show/Hide */}
         <div className={local.passwordRow}>
           <input
             className={global.input}

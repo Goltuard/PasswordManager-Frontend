@@ -1,5 +1,9 @@
-import { api } from "./apiClient";
+import axios from "axios";
 import { CredentialContainer } from "../models/CredentialContainer";
+
+const api = axios.create({
+  baseURL: "http://localhost:5197",
+});
 
 export async function getContainers(): Promise<CredentialContainer[]> {
   const res = await api.get("/api/CredentialContainers");
@@ -11,9 +15,7 @@ export async function getContainer(id: string): Promise<CredentialContainer> {
   return res.data;
 }
 
-export async function createContainer(
-  data: Omit<CredentialContainer, "id">
-) {
+export async function createContainer(data: Omit<CredentialContainer, "id">) {
   await api.post("/api/CredentialContainers", data);
 }
 

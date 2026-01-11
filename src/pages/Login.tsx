@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { hashPassword } from "../utils/auth";
 import global from "../styles/Global.module.css";
-import { api } from "../api/apiClient";
 
 export default function Login() {
   const [password, setPassword] = useState("");
@@ -27,35 +26,12 @@ export default function Login() {
       return;
     }
 
-    try {
-      const email = localStorage.getItem("userEmail");
-      if (!email) {
-        setError("User email not found. Please reset vault.");
-        return;
-      }
-
-      const res = await api.post("/Users/login", {
-        email,
-        password
-      });
-
-      localStorage.setItem("token", res.data.token);
-      sessionStorage.setItem("unlocked", "true");
-      navigate("/passwords", { replace: true });
-    } catch (err: any) {
-      const status = err?.response?.status;
-      const body = err?.response?.data;
-      const msg = status
-        ? `Backend login failed (${status}): ${JSON.stringify(body)}`
-        : "Backend authentication failed";
-      setError(msg);
-    }
+    sessionStorage.setItem("unlocked", "true");
+    navigate("/passwords", { replace: true });
   }
 
   function handleReset() {
     localStorage.removeItem("masterPasswordHash");
-    localStorage.removeItem("token");
-    localStorage.removeItem("userEmail");
     sessionStorage.removeItem("unlocked");
     setPassword("");
     setError("");

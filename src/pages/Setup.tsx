@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { hashPassword } from "../utils/auth";
-import global from "../styles/Global.module.css";
-import { api } from "../api/apiClient";
+import global from "../styles/Global.module.css"
 
 export default function Setup() {
   const [password, setPassword] = useState("");
@@ -18,29 +17,8 @@ export default function Setup() {
       return;
     }
 
-    const email = window.prompt("Email");
-    if (!email || !email.trim()) {
-      setError("Email required");
-      return;
-    }
-
-    const userName = email.split("@")[0] || email;
-
-    try {
-      await api.post("/Users/register", {
-        userName,
-        email,
-        password,
-        publicKey: "TEMP_PUBLIC_KEY"
-      });
-    } catch (err: any) {
-      setError(JSON.stringify(err.response?.data ?? err));
-      return;
-    }
-
     const hash = await hashPassword(password);
     localStorage.setItem("masterPasswordHash", hash);
-    localStorage.setItem("userEmail", email);
 
     navigate("/login", { replace: true });
   }
@@ -58,11 +36,7 @@ export default function Setup() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-
-        <button type="submit" className={global.saveButton}>
-          Save
-        </button>
-
+        <button type="submit" className={global.saveButton}>Save</button>
         {error && <p className={global.errorMessage}>{error}</p>}
       </form>
     </div>
