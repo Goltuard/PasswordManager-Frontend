@@ -1,6 +1,12 @@
 export interface CredentialContainer {
     id: string | null;
-    name: string;
     hash: string;
-    key: string;
+    string: CredentialData;
+}
+
+export interface CredentialData {
+  serviceName: string;
+  userName: string;
+  password: string;
+  note: string;
 }
