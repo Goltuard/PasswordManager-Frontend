@@ -10,6 +10,7 @@ export default function Edit() {
   const { id } = useParams<{ id: string }>();
   const [credentialContainer, setCredentialContainer] = useState<CredentialContainer | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [hidePassword, setHidePassword] = useState(true);
   const [credentialData, setCredentialData] = useState<CredentialData>({
     serviceName: "",
     userName: "",
@@ -98,7 +99,7 @@ export default function Edit() {
     }
 
     const payload = { 
-      id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      id: "00000000-0000-0000-0000-000000000000",
       containerHash: "",
       containerString: JSON.stringify(credentialData)
     }
@@ -196,11 +197,17 @@ export default function Edit() {
         <input
           className={style.inputText}
           disabled={submitting}
-          type="text"
+          type={hidePassword ? "password" : "text"}
           name="password"
           value={credentialContainer ? credentialData.password : ""}
           onChange={handleDataChange}
         />
+        <button 
+          type="button" 
+          onClick={() => setHidePassword(!hidePassword)}
+          className={style.linkButton}>
+            {hidePassword ? "Show" : "Hide"}
+        </button>
       </div>
 
       <div className={style.formGroup}>
