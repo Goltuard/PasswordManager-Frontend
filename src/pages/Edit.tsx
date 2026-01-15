@@ -105,14 +105,13 @@ export default function Edit() {
 
     const textEncoder = new TextEncoder();
     const contStringBuff = textEncoder.encode(payload.containerString).buffer
-    const hash =  window.crypto.subtle.digest("SHA-256", contStringBuff)
+    const hash = window.crypto.subtle.digest("SHA-256", contStringBuff)
     hash.then((data)=>{
       const arrayBufferToHexString = (arrayBuffer: ArrayBuffer) => {
         return Array.prototype.map.call(new Uint8Array(arrayBuffer), n=> n.toString(16).padStart(2,"0")).join("");
       }
       const str = arrayBufferToHexString(data);
       payload.containerHash = str.toUpperCase()
-      console.log(payload.containerHash)
       if (addMode) {
         api.post(`/credentialcontainers`, payload)
             .then(() => navigate("/passwords"))
