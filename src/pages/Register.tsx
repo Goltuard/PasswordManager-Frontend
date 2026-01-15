@@ -52,7 +52,7 @@ export default function RegisterForm() {
       const response = await Account.register(form);
       const user = response.data;
 
-      localStorage.setItem("jwt", user.token);
+      sessionStorage.setItem("jwt", user.token);
       setSuccessMessage("Registration succesful");
     } catch (err: any) {
       setError([

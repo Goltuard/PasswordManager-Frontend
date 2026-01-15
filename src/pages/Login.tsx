@@ -19,8 +19,7 @@ export default function LoginForm() {
       const response = await Account.login(form);
       const user = response.data;
 
-      localStorage.setItem("jwt", user.token);
-      localStorage.setItem("userId", user.id);
+      sessionStorage.setItem("jwt", user.token);
       setSuccessMessage("Logged in succesfully!");
     } catch (err: any) {
       if (err.response?.status === 401) {

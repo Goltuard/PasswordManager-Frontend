@@ -4,7 +4,7 @@ import style from "../styles/NavBar.module.css";
 export default function NavBar() {
   const navigate = useNavigate();
   const logout = () => {
-    localStorage.removeItem("jwt");
+    sessionStorage.removeItem("jwt");
     navigate("/login");
   };
   return (
