@@ -16,10 +16,10 @@ export default function Passwords() {
             setCredentialContainers(response.data);
         })
         .catch((err) => {
-        let message = "Error fetching cars";
+        let message = "Error fetching credentials";
           if(err.response) 
             if (err.response.status === 401)
-              message = "Please log in before accesing cars";
+              message = "Please log in before accesing credentials";
           setError(message);
         })
         .finally(() => {
@@ -45,18 +45,16 @@ export default function Passwords() {
             {CredentialContainers.map(container => {
               let data;
               try {
-                console.log(container);
                 data = JSON.parse(container.containerString);
-                console.log(data);
               } catch {
                 data = { serviceName: "", userName: "", password: "", note: "" };
               }
 
               return(
                 <li key={container.id} className={style.listItem}>
-                    <p>Srvice Name: {data.serviceName}</p>
-                    <p>User name: {data.userName}</p>
-                    <Link to={`/edit/${container.id}`} className={style.button}>Edit</Link>
+                    <p>Service Name: {data.serviceName}</p>
+                    <p>Login: {data.userName}</p>
+                    <Link to={`/edit/${container.id}`} className={style.linkButton}>Edit</Link>
                 </li>
             )})}
         </ul>

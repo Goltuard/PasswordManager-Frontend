@@ -28,6 +28,24 @@
   transform: translateY(-1px);
 }
 
+.saveButton:disabled {
+  margin-top: 20px;
+  background-color: #465146;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: bold;
+  cursor: not-allowed;
+  margin-left: 10px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.saveButton:disabled:hover {
+  background-color: #303b2e;
+  transform: none;
+}
+
 .deleteButton {
   margin-top: 20px;
   background-color: #f90808;
@@ -48,7 +66,7 @@
 
 .deleteButton:disabled {
   margin-top: 20px;
-  background-color: #f90808;
+  background-color: #6e0000;
   color: white;
   border: none;
   border-radius: 8px;
@@ -60,7 +78,7 @@
 }
 
 .deleteButton:disabled:hover {
-  background-color: #8f0d0d;
+  background-color: #5f0000;
   transform: none;
 }
 

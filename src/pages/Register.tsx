@@ -13,8 +13,10 @@ export default function RegisterForm() {
 
   const [error, setError] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const submit = async () => {
+    setSubmitting(true);
     try {
       const validationErrors: string[] = [];
 
@@ -38,9 +40,10 @@ export default function RegisterForm() {
         validationErrors.push("Password must contain at least one number. \n");
       }
 
-      if (error.length > 0) {
+      if (validationErrors.length > 0) {
         setError(validationErrors);
         setSuccessMessage(null);
+        setSubmitting(false);
         return;
       }
 
@@ -58,6 +61,8 @@ export default function RegisterForm() {
           : "Registration failed"
       ]);
       setSuccessMessage(null);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -93,7 +98,7 @@ export default function RegisterForm() {
             }
           />
 
-          <button onClick={submit} className={global.saveButton}>Register</button>
+          <button onClick={submit} disabled={submitting} className={global.saveButton}>Register</button>
         </div>
       </div>
 

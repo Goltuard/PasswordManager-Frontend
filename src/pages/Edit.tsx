@@ -16,7 +16,8 @@ export default function Edit() {
     note: ""
   });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string[]>([]);
   let addMode = !id;
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export default function Edit() {
 
     const fetchContainerById = async () => {
       if (!id) {
-        setError("Missing ID");
+        setError(["Missing ID"]);
         setLoading(false);
         return;
       }
@@ -48,7 +49,7 @@ export default function Edit() {
         setCredentialContainer(response.data ?? null);
         setCredentialData(JSON.parse(response.data.containerString));
       } catch (err) {
-        setError('Error fetching data');
+        setError(['Error fetching data']);
       } finally {
         setLoading(false);
       }
@@ -77,8 +78,23 @@ export default function Edit() {
 
 
   const handleSubmit = (e: React.FormEvent) => {
+    setSubmitting(true);
     e.preventDefault();
-    if (!credentialContainer) return;
+
+    const validationErrors: string[] = [];
+
+    if (credentialData.serviceName === "" || credentialData.serviceName === null || credentialData.serviceName === undefined)
+      validationErrors.push("Service name can not be empty.");
+    if (credentialData.userName === "" || credentialData.userName === null || credentialData.userName === undefined)
+      validationErrors.push("Login can not be empty.");
+    if (credentialData.password === "" || credentialData.password === null || credentialData.password === undefined)
+      validationErrors.push("Password can not be empty.");
+
+    if (validationErrors.length > 0) {
+      setError(validationErrors);
+      setSubmitting(false);
+      return;
+    }
 
     const payload = { 
       id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -88,19 +104,27 @@ export default function Edit() {
     if (addMode) {
       api.post(`/credentialcontainers`, payload)
       .then(() => navigate("/passwords"))
-      .catch(err => console.error(err));
+      .catch(err => {
+        const message =
+        err.response?.data?.message ??
+        err.response?.data ??
+        "Adding failed";
+
+        setError([message]);
+      });
     } else {
       api.put(`/credentialcontainers/${id}`, payload)
       .then(() => navigate("/passwords"))
       .catch(err => {
         const message =
-          err.response?.data?.message ||
-          err.response?.data ||
+          err.response?.data?.message ??
+          err.response?.data ??
           "Saving failed";
 
-        setError(message);
+        setError([message]);
       });
     }
+    setSubmitting(false);
   };
 
   const handleDelete = () => {
@@ -110,11 +134,11 @@ export default function Edit() {
         .then(() => navigate("/passwords"))
         .catch(err => {
           const message =
-            err.response?.data?.message ||
-            err.response?.data ||
-            "Saving failed";
+            err.response?.data?.message ??
+            err.response?.data ??
+            "Deletion failed";
 
-        setError(message);
+        setError([message]);
         }
       );
     }
@@ -123,11 +147,6 @@ export default function Edit() {
   if (loading) return (
   <div className={style.container}>
     <p className={style.title}>Loading...</p>
-  </div>
-  );
-  if (error) return (
-  <div className={style.container}>
-    <p className={style.title}>{error}</p>
   </div>
   );
 
@@ -139,6 +158,7 @@ export default function Edit() {
         <label className={style.title}>Service Name:</label>
         <input
           className={style.inputText}
+          disabled={submitting}
           type="text"
           name="serviceName"
           value={credentialContainer ? credentialData.serviceName : ""}
@@ -147,9 +167,10 @@ export default function Edit() {
       </div>
 
       <div className={style.formGroup}>
-        <label className={style.title}>User name:</label>
+        <label className={style.title}>Login:</label>
         <input
           className={style.inputText}
+          disabled={submitting}
           type="text"
           name="userName"
           value={credentialContainer ? credentialData.userName : ""}
@@ -161,6 +182,7 @@ export default function Edit() {
         <label className={style.title}>Password:</label>
         <input
           className={style.inputText}
+          disabled={submitting}
           type="text"
           name="password"
           value={credentialContainer ? credentialData.password : ""}
@@ -172,6 +194,7 @@ export default function Edit() {
         <label className={style.title}>Note:</label>
         <input
           className={style.inputText}
+          disabled={submitting}
           type="text"
           name="note"
           value={credentialContainer ? credentialData.note : ""}
@@ -179,13 +202,17 @@ export default function Edit() {
         />
       </div>
 
-      <button type="submit" className={style.saveButton}>Save</button>
-      <button type="button" className={style.saveButton} onClick={handleGeneratePassword}>Generate</button>
-      <button type="button" disabled={addMode} className={style.deleteButton} onClick={handleDelete}>Delete</button>
+      <button type="submit" className={style.saveButton} disabled={submitting}>Save</button>
+      <button type="button" className={style.saveButton} disabled={submitting} onClick={handleGeneratePassword}>Generate</button>
+      <button type="button" disabled={submitting || addMode} className={style.deleteButton} onClick={handleDelete}>Delete</button>
     </form>
-    {error && (
+    {error.length > 0 && (
       <div className={style.errorBox}>
-        <p className={style.errorItem}>{error}</p>
+        {error.map((err, i) => (
+          <div key={i} className={style.errorItem}>
+            {err}
+          </div>
+        ))}
       </div>
     )}
   </div>
