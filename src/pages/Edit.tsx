@@ -31,7 +31,7 @@ export default function Edit() {
       })
       setCredentialContainer({
         id: null,
-        containerHash: "NotImplemented",
+        containerHash: "",
         containerString: ""
       });
     setLoading(false);
@@ -98,13 +98,24 @@ export default function Edit() {
 
     const payload = { 
       id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      containerHash: "temporaryHash",
+      containerHash: "",
       containerString: JSON.stringify(credentialData)
     }
-    if (addMode) {
-      api.post(`/credentialcontainers`, payload)
-      .then(() => navigate("/passwords"))
-      .catch(err => {
+
+    const textEncoder = new TextEncoder();
+    const contStringBuff = textEncoder.encode(payload.containerString).buffer
+    const hash =  window.crypto.subtle.digest("SHA-256", contStringBuff)
+    hash.then((data)=>{
+      const arrayBufferToHexString = (arrayBuffer: ArrayBuffer) => {
+        return Array.prototype.map.call(new Uint8Array(arrayBuffer), n=> n.toString(16).padStart(2,"0")).join("");
+      }
+      const str = arrayBufferToHexString(data);
+      payload.containerHash = str.toUpperCase()
+      console.log(payload.containerHash)
+      if (addMode) {
+        api.post(`/credentialcontainers`, payload)
+            .then(() => navigate("/passwords"))
+            .catch(err => {
         const message =
         err.response?.data?.message ??
         err.response?.data ??
@@ -112,19 +123,23 @@ export default function Edit() {
 
         setError([message]);
       });
-    } else {
-      api.put(`/credentialcontainers/${id}`, payload)
-      .then(() => navigate("/passwords"))
-      .catch(err => {
-        const message =
-          err.response?.data?.message ??
-          err.response?.data ??
-          "Saving failed";
+      } else {
+        api.put(`/credentialcontainers/${id}`, payload)
+            .then(() => navigate("/passwords"))
+            .catch(err => {
+              const message =
+                  err.response?.data?.message ??
+                  err.response?.data ??
+                  "Saving failed";
 
-        setError([message]);
-      });
-    }
+              setError([message]);
+            });
+      }
     setSubmitting(false);
+
+    }).catch((err)=>{
+      setError(err)
+    })
   };
 
   const handleDelete = () => {
