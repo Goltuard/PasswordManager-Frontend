@@ -9,6 +9,7 @@ export default function Edit() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [credentialContainer, setCredentialContainer] = useState<CredentialContainer | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [credentialData, setCredentialData] = useState<CredentialData>({
     serviceName: "",
     userName: "",
@@ -144,19 +145,17 @@ export default function Edit() {
 
   const handleDelete = () => {
     if (!credentialContainer?.id) return;
-    if (window.confirm("Are you sure you want to delete this credential?")) {
-      api.delete(`/credentialcontainers/${id}`)
-        .then(() => navigate("/passwords"))
-        .catch(err => {
-          const message =
-            err.response?.data?.message ??
-            err.response?.data ??
-            "Deletion failed";
+    api.delete(`/credentialcontainers/${id}`)
+      .then(() => navigate("/passwords"))
+      .catch(err => {
+        const message =
+          err.response?.data?.message ??
+          err.response?.data ??
+          "Deletion failed";
 
-        setError([message]);
-        }
-      );
-    }
+      setError([message]);
+      }
+    );
   };
 
   if (loading) return (
@@ -219,7 +218,7 @@ export default function Edit() {
 
       <button type="submit" className={style.saveButton} disabled={submitting}>Save</button>
       <button type="button" className={style.saveButton} disabled={submitting} onClick={handleGeneratePassword}>Generate</button>
-      <button type="button" disabled={submitting || addMode} className={style.deleteButton} onClick={handleDelete}>Delete</button>
+      <button type="button" disabled={submitting || addMode} className={style.deleteButton} onClick={() => setShowConfirm(true)}>Delete</button>
     </form>
     {error.length > 0 && (
       <div className={style.errorBox}>
@@ -230,6 +229,27 @@ export default function Edit() {
         ))}
       </div>
     )}
+    {showConfirm && (
+        <dialog open className={style.dialog}>
+          <p className={style.title}>
+            Are you sure you want to delete this credential?
+          </p>
+
+          <button
+            className={style.deleteButton}
+            onClick={handleDelete}
+          >
+            Delete
+          </button>
+
+          <button
+            className={style.saveButton}
+            onClick={() => setShowConfirm(false)}
+          >
+            Cancel
+          </button>
+        </dialog>
+      )}
   </div>
   );
 }
