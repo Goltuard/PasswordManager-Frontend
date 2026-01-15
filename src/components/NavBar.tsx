@@ -1,10 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import style from "../styles/NavBar.module.css";
 
 export default function NavBar() {
+  const navigate = useNavigate();
   const logout = () => {
     localStorage.removeItem("jwt");
-    window.location.href = "/login";
+    navigate("/login");
   };
   return (
     <nav className={style.navbar}>
