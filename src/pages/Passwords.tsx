@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { useEffect, useState } from "react";
 import { CredentialContainer } from "../models/CredentialContainer";
 import { Link } from 'react-router-dom';
@@ -35,7 +34,7 @@ export default function Passwords() {
   );
   if (error) return (
   <div className={style.container}>
-    <p className={style.title}>{error}</p>
+    <p className={style.errorItem}>{error}</p>
   </div>
   );
 
@@ -43,14 +42,25 @@ export default function Passwords() {
     <div className={style.container}>
         <h1 className={style.title}>Passwords</h1>
         <ul className={style.list}>
-            {CredentialContainers.map(container => (
+            {CredentialContainers.map(container => {
+              let data;
+              try {
+                console.log(container);
+                data = JSON.parse(container.containerString);
+                console.log(data);
+              } catch {
+                data = { serviceName: "", userName: "", password: "", note: "" };
+              }
+
+              return(
                 <li key={container.id} className={style.listItem}>
-                    <p>Srvice Name: {container.string.serviceName}</p>
-                    <p>User name: {container.string.userName}</p>
+                    <p>Srvice Name: {data.serviceName}</p>
+                    <p>User name: {data.userName}</p>
                     <Link to={`/edit/${container.id}`} className={style.button}>Edit</Link>
                 </li>
-            ))}
+            )})}
         </ul>
+        <Link to={`/edit`} className={style.linkButton}>Add a credential</Link>
     </div>
   );
 }

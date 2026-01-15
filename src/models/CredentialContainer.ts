@@ -1,7 +1,7 @@
 export interface CredentialContainer {
     id: string | null;
-    hash: string;
-    string: CredentialData;
+    containerHash: string;
+    containerString: string;
 }
 
 export interface CredentialData {

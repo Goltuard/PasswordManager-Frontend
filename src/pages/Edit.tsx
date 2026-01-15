@@ -1,4 +1,3 @@
-import axios from 'axios';
 import api from "../api/ApiConfig"
 import { useNavigate, useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
@@ -21,6 +20,7 @@ export default function Edit() {
   let addMode = !id;
 
   useEffect(() => {
+    setLoading(true);
     if (addMode) {
       setCredentialData({
         serviceName: "",
@@ -30,8 +30,8 @@ export default function Edit() {
       })
       setCredentialContainer({
         id: null,
-        hash: "",
-        string: credentialData
+        containerHash: "NotImplemented",
+        containerString: ""
       });
     setLoading(false);
     return;
@@ -46,9 +46,7 @@ export default function Edit() {
       try {
         const response = await api.get(`/credentialcontainers/${id}`);
         setCredentialContainer(response.data ?? null);
-        if (credentialContainer) {
-          setCredentialData(response.data.string);
-        }
+        setCredentialData(JSON.parse(response.data.containerString));
       } catch (err) {
         setError('Error fetching data');
       } finally {
@@ -57,16 +55,6 @@ export default function Edit() {
     };
     fetchContainerById();
   }, [id]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    if (credentialContainer) {
-      const { name, value } = e.target;
-      setCredentialContainer({
-        ...credentialContainer,
-        [name]: value,
-      });
-    }
-  };
 
   const handleDataChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (credentialContainer) {
@@ -81,9 +69,9 @@ export default function Edit() {
   const handleGeneratePassword = () => {
     if (!credentialContainer) return;
 
-    setCredentialContainer({
-      ...credentialContainer,
-      hash: generatePassword(16),
+    setCredentialData({
+      ...credentialData,
+      password: generatePassword(16),
     });
   };
 
@@ -92,86 +80,114 @@ export default function Edit() {
     e.preventDefault();
     if (!credentialContainer) return;
 
-    const { id, ...payload } = credentialContainer;
+    const payload = { 
+      id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      containerHash: "temporaryHash",
+      containerString: JSON.stringify(credentialData)
+    }
     if (addMode) {
       api.post(`/credentialcontainers`, payload)
-      .then(() => navigate("/home"))
+      .then(() => navigate("/passwords"))
       .catch(err => console.error(err));
     } else {
       api.put(`/credentialcontainers/${id}`, payload)
-      .then(() => navigate("/home"))
-      .catch(err => console.error(err));
+      .then(() => navigate("/passwords"))
+      .catch(err => {
+        const message =
+          err.response?.data?.message ||
+          err.response?.data ||
+          "Saving failed";
+
+        setError(message);
+      });
     }
   };
 
-    const handleDelete = () => {
-        if (!credentialContainer?.id) return;
-        if (window.confirm("Are you sure you want to delete this password?")) {
-            api.delete(`/credentialcontainers/${id}`)
-            .then(() => navigate("/home"))
-            .catch(err => console.error(err));
+  const handleDelete = () => {
+    if (!credentialContainer?.id) return;
+    if (window.confirm("Are you sure you want to delete this credential?")) {
+      api.delete(`/credentialcontainers/${id}`)
+        .then(() => navigate("/passwords"))
+        .catch(err => {
+          const message =
+            err.response?.data?.message ||
+            err.response?.data ||
+            "Saving failed";
+
+        setError(message);
         }
-    };
+      );
+    }
+  };
 
-    if (loading) return (
-    <div className={style.container}>
-        <p className={style.title}>Loading...</p>
-    </div>
-    );
-    if (error) return (
-    <div className={style.container}>
-        <p className={style.title}>{error}</p>
-    </div>
-    );
+  if (loading) return (
+  <div className={style.container}>
+    <p className={style.title}>Loading...</p>
+  </div>
+  );
+  if (error) return (
+  <div className={style.container}>
+    <p className={style.title}>{error}</p>
+  </div>
+  );
 
-    return (
-    <div className={style.container}>
-      <form onSubmit={handleSubmit} className={style.formContainer}>
-        
-        <div className={style.formGroup}>
-          <label>Service Name:</label>
-          <input
-            type="text"
-            name="serviceName"
-            value={credentialContainer ? credentialData.serviceName : ""}
-            onChange={handleDataChange}
-          />
-        </div>
+  return (
+  <div className={style.container}>
+    <form onSubmit={handleSubmit} className={style.formContainer}>
+      
+      <div className={style.formGroup}>
+        <label className={style.title}>Service Name:</label>
+        <input
+          className={style.inputText}
+          type="text"
+          name="serviceName"
+          value={credentialContainer ? credentialData.serviceName : ""}
+          onChange={handleDataChange}
+        />
+      </div>
 
-        <div className={style.formGroup}>
-          <label>User name:</label>
-          <input
-            type="text"
-            name="userName"
-            value={credentialContainer ? credentialData.userName : ""}
-            onChange={handleDataChange}
-          />
-        </div>
+      <div className={style.formGroup}>
+        <label className={style.title}>User name:</label>
+        <input
+          className={style.inputText}
+          type="text"
+          name="userName"
+          value={credentialContainer ? credentialData.userName : ""}
+          onChange={handleDataChange}
+        />
+      </div>
 
-        <div className={style.formGroup}>
-          <label>Password:</label>
-          <input
-            type="text"
-            name="password"
-            value={credentialContainer ? credentialData.password : ""}
-            onChange={handleDataChange}
-          />
-        </div>
+      <div className={style.formGroup}>
+        <label className={style.title}>Password:</label>
+        <input
+          className={style.inputText}
+          type="text"
+          name="password"
+          value={credentialContainer ? credentialData.password : ""}
+          onChange={handleDataChange}
+        />
+      </div>
 
-        <div className={style.formGroup}>
-          <label>Note:</label>
-          <input
-            type="text"
-            name="note"
-            value={credentialContainer ? credentialData.note : ""}
-            onChange={handleDataChange}
-          />
-        </div>
+      <div className={style.formGroup}>
+        <label className={style.title}>Note:</label>
+        <input
+          className={style.inputText}
+          type="text"
+          name="note"
+          value={credentialContainer ? credentialData.note : ""}
+          onChange={handleDataChange}
+        />
+      </div>
 
-        <button type="submit" className={style.saveButton}>Save</button>
-       <button type="button" className={style.saveButton} onClick={handleGeneratePassword}>Generate</button>
-       <button type="button" disabled={addMode} className={style.deleteButton} onClick={handleDelete}>Delete</button>
-      </form>
-    </div>
-    );
+      <button type="submit" className={style.saveButton}>Save</button>
+      <button type="button" className={style.saveButton} onClick={handleGeneratePassword}>Generate</button>
+      <button type="button" disabled={addMode} className={style.deleteButton} onClick={handleDelete}>Delete</button>
+    </form>
+    {error && (
+      <div className={style.errorBox}>
+        <p className={style.errorItem}>{error}</p>
+      </div>
+    )}
+  </div>
+  );
 }

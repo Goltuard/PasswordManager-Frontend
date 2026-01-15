@@ -20,6 +20,7 @@ export default function LoginForm() {
       const user = response.data;
 
       localStorage.setItem("jwt", user.token);
+      localStorage.setItem("userId", user.id);
       setSuccessMessage("Logged in succesfully!");
     } catch (err: any) {
       if (err.response?.status === 401) {
@@ -38,6 +39,7 @@ export default function LoginForm() {
         <h2 className={global.title}>Login</h2>
         <div className={global.formGroup}>
           <input
+            className={global.inputText}
             placeholder="Email"
             value={form.email}
             onChange={(e) =>
@@ -46,6 +48,7 @@ export default function LoginForm() {
           />
 
           <input
+            className={global.inputText}
             type="password"
             placeholder="Password"
             value={form.password}
@@ -54,7 +57,7 @@ export default function LoginForm() {
             }
           />
 
-          <button onClick={submit} className={global.loginButton}>Login</button>
+          <button onClick={submit} className={global.saveButton}>Login</button>
         </div>
       </div>
       {error && <p className={global.errorBox}>{error}</p>}
