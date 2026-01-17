@@ -52,14 +52,15 @@ export default function RegisterForm() {
 
       const { publicKey, privateKey } = await generateKeyPair();
 
-      setForm({ ...form, publicKey: publicKey })
+      const updatedForm = { ...form, publicKey };
+      setForm(updatedForm);
 
       const response = await Account.register(form);
       const user = response.data;
 
       sessionStorage.setItem("jwt", user.token);
       localStorage.setItem(`pubKey-${user.id}`, publicKey);
-      localStorage.setItem(`priKey-${user.id}`, privateKey);      
+      localStorage.setItem(`priKey-${user.id}`, privateKey);   
       setSuccessMessage("Registration succesful");
     } catch (err: any) {
       setError([
