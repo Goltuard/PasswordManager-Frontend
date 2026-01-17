@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Account } from "../api/Account";
 import { RegisterContainer } from "../models/Register";
 import global from "../styles/Global.module.css"
+import { generateKeyPair } from "../utils/keyGeneration"
 
 export default function RegisterForm() {
   const [form, setForm] = useState<RegisterContainer>({
@@ -49,10 +50,16 @@ export default function RegisterForm() {
 
       setError([]);
 
+      const { publicKey, privateKey } = await generateKeyPair();
+
+      setForm({ ...form, publicKey: publicKey })
+
       const response = await Account.register(form);
       const user = response.data;
 
       sessionStorage.setItem("jwt", user.token);
+      localStorage.setItem(`pubKey-${user.id}`, publicKey);
+      localStorage.setItem(`priKey-${user.id}`, privateKey);      
       setSuccessMessage("Registration succesful");
     } catch (err: any) {
       setError([
