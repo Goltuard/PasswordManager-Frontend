@@ -190,6 +190,12 @@ export default function Edit() {
           value={credentialContainer ? credentialData.userName : ""}
           onChange={handleDataChange}
         />
+        <button
+          type="button"
+          className={style.linkButton}
+          onClick={() => {navigator.clipboard.writeText(credentialData.userName)}}>
+            Copy
+        </button>
       </div>
 
       <div className={style.formGroup}>
@@ -207,6 +213,12 @@ export default function Edit() {
           onClick={() => setHidePassword(!hidePassword)}
           className={style.linkButton}>
             {hidePassword ? "Show" : "Hide"}
+        </button>
+        <button
+          type="button"
+          className={style.linkButton}
+          onClick={() => {navigator.clipboard.writeText(credentialData.password)}}>
+            Copy
         </button>
       </div>
 

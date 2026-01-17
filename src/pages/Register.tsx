@@ -91,6 +91,7 @@ export default function RegisterForm() {
 
           <input
             className={global.inputText}
+            type="password"
             placeholder="Password"
             value={form.password}
             onChange={(e) =>
